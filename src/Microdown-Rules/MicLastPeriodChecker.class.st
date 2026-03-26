@@ -9,6 +9,11 @@ Class {
 	#tag : 'CodeLastPeriod'
 }
 
+{ #category : 'public - name' }
+MicLastPeriodChecker class >> checkerName [ 
+	^ 'CodeLastPeriod'
+]
+
 { #category : 'visiting' }
 MicLastPeriodChecker >> checkExtraPeriodIn: aMicCodeBlock [ 
 	
@@ -29,6 +34,15 @@ MicLastPeriodChecker >> checkMissingPeriodIn: aMicCodeBlock [
 					 micElement: aMicCodeBlock;
 					 inFile: aMicCodeBlock fromFile;
 					 codeShouldEndWithPeriod: codeShouldEndWithPeriod) ]
+]
+
+{ #category : 'visiting' }
+MicLastPeriodChecker >> configureFrom: aBoolean [
+
+	self halt.
+	aBoolean = 'true'
+		ifTrue: [ codeShouldEndWithPeriod := true ]
+		ifFalse: [ codeShouldEndWithPeriod := false ]
 ]
 
 { #category : 'visiting' }

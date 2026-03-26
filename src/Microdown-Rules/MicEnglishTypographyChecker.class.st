@@ -1,14 +1,27 @@
+"
+I check that punctuation follows English typography: in English there is no space before diacritics (:;?!) and there is space after diacrittics and (.,).
+
+```
+Is it not great that Microdown rule checkers can spot such mistakes? Indeed, this is great.
+```
+"
 Class {
-	#name : 'MicEnglishTypoChecker',
+	#name : 'MicEnglishTypographyChecker',
 	#superclass : 'MicChecker',
-	#category : 'Microdown-Rules-EnglishTypographic',
+	#category : 'Microdown-Rules-EnglishTypography',
 	#package : 'Microdown-Rules',
-	#tag : 'EnglishTypographic'
+	#tag : 'EnglishTypography'
 }
 
+{ #category : 'public - name' }
+MicEnglishTypographyChecker class >> checkerName [ 
+	
+	^ 'EnglishTypography'
+]
+
 { #category : 'adding' }
-MicEnglishTypoChecker >> addResultFor: anElement message: aMessage [
-	results add: (MicSpaceBeforeDiacriticsResult new 
+MicEnglishTypographyChecker >> addResultFor: anElement message: aMessage [
+	results add: (MicEnglishTypographyResult new 
 		micElement: anElement;
 		inFile: anElement fromFile;
 		detail: aMessage;
@@ -17,7 +30,7 @@ MicEnglishTypoChecker >> addResultFor: anElement message: aMessage [
 ]
 
 { #category : 'adding' }
-MicEnglishTypoChecker >> checkString: aString for: anElement [
+MicEnglishTypographyChecker >> checkString: aString for: anElement [
 	| checks |
 	aString ifNil: [ ^self ].
 checks := {
@@ -45,20 +58,25 @@ checks := {
 	].
 ]
 
+{ #category : 'as yet unclassified' }
+MicEnglishTypographyChecker >> configureFrom: aConfiguration [
+	^ self
+]
+
 { #category : 'adding' }
-MicEnglishTypoChecker >> visitCode: aCodeBlock [
+MicEnglishTypographyChecker >> visitCode: aCodeBlock [
 
 	aCodeBlock caption ifNil: [ ^self ].
 	self checkString: aCodeBlock caption for: aCodeBlock.
 ]
 
 { #category : 'adding' }
-MicEnglishTypoChecker >> visitMonospace: aCodeBlock [
+MicEnglishTypographyChecker >> visitMonospace: aCodeBlock [
 	^ self
 ]
 
 { #category : 'adding' }
-MicEnglishTypoChecker >> visitText: aText [
+MicEnglishTypographyChecker >> visitText: aText [
 
 	self checkString: aText bodyString for: aText. 
 

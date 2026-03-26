@@ -11,6 +11,12 @@ Class {
 	#tag : 'Capitalization'
 }
 
+{ #category : 'public - name' }
+MicRuleHeaderChecker class >> checkerName [
+
+	^ 'HeaderCapitalization'
+]
+
 { #category : 'initialization' }
 MicRuleHeaderChecker >> addUncapitalized: aString [ 
 	"Make sure that aString will not be capitalized"
@@ -37,6 +43,14 @@ MicRuleHeaderChecker >> checkRest: words of: aMicHeader [
 	"
 	
 	strategy checkRest: words of: aMicHeader
+]
+
+{ #category : 'configuration' }
+MicRuleHeaderChecker >> configureFrom: aConfiguration [
+	aConfiguration isNil ifTrue: [ ^ self ].
+	aConfiguration = 'uppercase'
+		ifTrue: [ self verifyUppercase ]
+		ifFalse: [ self verifyLowercase ]
 ]
 
 { #category : 'initialization' }

@@ -13,17 +13,76 @@ Class {
 }
 
 { #category : 'instance creation' }
-MicAnalysisReportWriter class >> reportForFolder: folderReference startingFrom: fileReference [
-	"I perform several analyses starting from a root document file reference (e.g. index.md)"
+MicAnalysisReportWriter class >> checkersFromConfiguration: aConfiguration [
+	"Return all the checkers taking into account the configuration information."
+	
+	| availableCheckers configuredCheckers onlyCheckers |
+	
+	availableCheckers := Dictionary new.
+	(MicChecker allSubclasses copyWithoutFirst: MicFrenchTypoChecker) 
+		do: [ :aClass |
+			availableCheckers 
+				at: aClass checkerName 
+				put: aClass ].
 
-	"In the future we should have a better way to add analysis. "	
+	configuredCheckers := Dictionary new. 
+	onlyCheckers := aConfiguration onlyCheckers.
+	(onlyCheckers isNil or: [ onlyCheckers isEmpty ]) 
+		ifFalse: [ 
+			onlyCheckers do: [ :aCheck |
+				availableCheckers 
+					at: aCheck 
+					ifAbsent: [ Stdio stdout nextPutAll: 'The checker ', aCheck asString , ' is not available'].
+				configuredCheckers 
+					at: aCheck 
+					put: (availableCheckers at: aCheck) new.
+				self 
+					configureCheckers: configuredCheckers 
+					from: aConfiguration.
+				^ configuredCheckers values ]].
+		
+	
+	"Remove the checker the user does not want
+	We will have to see the ones that are exclusive: FrenchTypo and EnglishTypo"	
+
+	aConfiguration ignoredCheckers   
+		do: [ :each | availableCheckers removeKey: each ifAbsent: [ ] ].
+
+	
+	availableCheckers keysAndValuesDo: [ :k :v | 
+		[ configuredCheckers at: k put: v new] 
+			on: Error 
+			do: [  ] ].
+	
+	
+	self 
+		configureCheckers: configuredCheckers 
+		from: aConfiguration.		
+	^ configuredCheckers values
+]
+
+{ #category : 'instance creation' }
+MicAnalysisReportWriter class >> configureCheckers: configuredCheckers from: aConfiguration [
+
+	aConfiguration checkerConfigurations do: [ :each |
+			configuredCheckers 
+				at: each key
+				ifPresent: [ :checker | 
+					checker configureFrom: each value ] ].
+]
+
+{ #category : 'instance creation' }
+MicAnalysisReportWriter class >> reportForFolder: folderReference 
+	startingFrom: fileReference
+	configuration: aConfiguration [
+	"I perform several analyses starting from a root document file reference (e.g. index.md)"
+		
 	| reporter checkers |
 	reporter := self new.
 
-	checkers := { MicReferenceChecker . MicCodeBlockValidator . MicEnglishTypoChecker . MicLastPeriodInCaptionChecker}.
-	checkers do: [ :checkerClass |
-		| checker |
-		checker := checkerClass new.
+	checkers := self checkersFromConfiguration: aConfiguration.
+	
+	checkers do: [ :checker|
 		checker rootDirectory: folderReference.
 		checker checkProject: fileReference.
 		reporter addResults: checker results ].
@@ -91,7 +150,7 @@ MicAnalysisReportWriter >> report [
 MicAnalysisReportWriter >> reportElements: partialResults on: aStream [
 
 	partialResults 
-		do: [ :each | aStream tab; nextPutAll: each explanation ] 
+		do: [ :each | aStream nextPutAll: '- '; nextPutAll: each explanation ] 
 		separatedBy: [ aStream cr ]
 	
 ]

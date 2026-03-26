@@ -18,6 +18,23 @@ Class {
 	#tag : 'Core'
 }
 
+{ #category : 'public - name' }
+MicChecker class >> checkerName [ 
+	^ 'UnnamedChecker'
+]
+
+{ #category : 'configuration help' }
+MicChecker class >> explanationForConfiguration [
+	"self explanationForConfiguration"
+	
+	^ String streamContents: [:str | 
+		str << self comment. 
+		str cr.
+		str << 'In the pillar.conf file you add the following key values:'. 
+		str cr.
+		str << self configurationPart ]
+]
+
 { #category : 'visiting' }
 MicChecker >> addResult: aResult [
 
